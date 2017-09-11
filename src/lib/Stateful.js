@@ -1,0 +1,58 @@
+import React, {
+  Component
+} from 'react';
+
+import Tab from './Tab';
+
+class Tabs extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      active: this.getTabs()[0].props.title
+    };
+  }
+
+  onSwitchTab(title) {
+    this.setState({active: title});
+  }
+
+  getTabs() {
+    return React.Children.toArray(this.props.children).filter(({type}) => {
+      return type === Tab;
+    });
+  }
+
+  render() {
+    const activeTab = this.getTabs().map((child, idx) => {
+      if (this.state.active !== child.props.title) return null;
+
+      return (
+        <div key={`tab-${idx}-content`}>
+          {child.props.children}
+        </div>
+      );
+    });
+
+    const tabs = this.getTabs().map((child, idx) => {
+      return React.cloneElement(child, {
+        key: `tab-${idx}-title`,
+        isActive: this.state.active === child.props.title,
+        onSwitchTab: this.onSwitchTab.bind(this)
+      });
+    });
+
+    return (
+      <div className="Tabs">
+        <div className="tabs is-centered">
+          <ul>
+            {tabs}
+          </ul>
+        </div>
+        {activeTab}
+      </div>
+    );
+  }
+}
+
+export default Tabs;
